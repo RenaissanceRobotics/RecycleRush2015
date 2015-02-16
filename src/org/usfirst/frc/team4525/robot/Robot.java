@@ -27,6 +27,7 @@ public class Robot extends SampleRobot {
 
 	// Control Systems | Mechanisms
 	private XboxController xboxDrive, xboxMech;
+	Victor one, two, three, four;
 	private DriveTrain driveSys;
 
 	public Talon winch, boom;
@@ -55,7 +56,7 @@ public class Robot extends SampleRobot {
 	private SendableChooser autoModeChooser;
 
 	enum autoMode {
-		FULL_OUT_FAR, FULL_OUT_CLOSE, GET_TOTE, NOTHING, KICK_THE_ROBOT,
+		FULL_OUT_FAR, FULL_OUT_CLOSE, GET_TOTE, NOTHING, KICK_THE_ROBOT, INIT_ERROR_FIX
 	}
 
 	enum Winch {
@@ -95,7 +96,6 @@ public class Robot extends SampleRobot {
 		// Control Systems
 		xboxDrive = new XboxController(0);
 		xboxMech = new XboxController(1);
-		Victor one, two, three, four;
 		one = new Victor(0);
 		two = new Victor(1);
 		three = new Victor(2);
@@ -140,22 +140,30 @@ public class Robot extends SampleRobot {
 		autoModeChooser.addDefault("Tote Grabber", autoMode.GET_TOTE);
 		autoModeChooser.addObject("Do Nothing", autoMode.NOTHING);
 		autoModeChooser.addObject("Kick The Robot Game", autoMode.KICK_THE_ROBOT);
+		autoModeChooser.addObject("Error fix", autoMode.INIT_ERROR_FIX);
 		SmartDashboard.putData("Automiton Mode", autoModeChooser);
 
 	}
 
-	public void autonomous() {		
+	public void autonomous() {
 		compressor.start();
 		driveSys.setControlSensitivity(1);
 		driveSys.speedSensitivity(1);
 		driveSys.setSkimReverse(false);
-		
-		
+
 		//
-		
+
 		//
 		autoMode mode = (autoMode) autoModeChooser.getSelected();
-		if (mode == autoMode.GET_TOTE) {
+		if (mode == autoMode.INIT_ERROR_FIX) {
+			while (isEnabled()) {
+				double val = 0.5;
+				one.set(val);
+				two.set(val);
+				three.set(-val);
+				four.set(-val);
+			}
+		} else if (mode == autoMode.GET_TOTE) {
 			tilt.retract();
 			claw.extend();
 		} else if (mode == autoMode.NOTHING) {
@@ -168,14 +176,15 @@ public class Robot extends SampleRobot {
 				driveDistance(75, 0.3, false);
 				driveDistance(-75, -0.3, false);
 			}
-		} else if(mode == autoMode.FULL_OUT_CLOSE) { // Close Bump
+		} else if (mode == autoMode.FULL_OUT_CLOSE) { // Close Bump
 			claw.retract();
 			tilt.extend();
 			gyro.reset();
-			
+
 			driveDistance(22, 0.35, true);
 			// Boom Forward
-			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch, 0.5);
+			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch,
+					0.5);
 			Thread boomForwardThread = new Thread(boomForward);
 			boomForwardThread.start();
 			// Drop Claw
@@ -184,24 +193,26 @@ public class Robot extends SampleRobot {
 			dropClawThread.start();
 			// Go forwards
 			driveDistanceOrLimit(86, 0.5, robotFrontTouch, false);
-			while (!boomForward.isReady());
+			while (!boomForward.isReady())
+				;
 			// Grab bin
 			claw.extend();
 			Timer.delay(0.5);
 			//
 			winch.set(Winch.UP.get());
-			Timer.delay(3);;
+			Timer.delay(3);
+			;
 			// Back Arm off
 			winch.set(Winch.OFF.get());
-			
-			
+
 		} else { // Full out Far
 			claw.retract();
 			tilt.extend();
 			gyro.reset();
-			
+
 			// Move Arm Forwards
-			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch, 0.5);
+			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch,
+					0.5);
 			Thread boomForwardThread = new Thread(boomForward);
 			boomForwardThread.start();
 			// Drive To
@@ -213,7 +224,8 @@ public class Robot extends SampleRobot {
 			// Go to bin
 			driveDistanceOrLimit(53, 0.35, robotFrontTouch, true);
 			// Extend Boom
-			while (!boomForward.isReady());
+			while (!boomForward.isReady())
+				;
 			// Grab Bin
 			claw.extend();
 			Timer.delay(0.5);
@@ -242,8 +254,8 @@ public class Robot extends SampleRobot {
 			Timer.delay(1.5);
 			spinRobot(-30, 0.4);
 			Timer.delay(0.5);
-			driveDistance(-2,0.35,true);
-			//claw.retract();
+			driveDistance(-2, 0.35, true);
+			// claw.retract();
 		}
 	}
 
@@ -383,13 +395,15 @@ public class Robot extends SampleRobot {
 		driveSys.arcadeDrive(speed, offset);
 	}
 
-	private void driveDistanceOrLimit(double distance, double speed, DigitalInput limitswitch, boolean useEncoders) {
+	private void driveDistanceOrLimit(double distance, double speed, DigitalInput limitswitch,
+			boolean useEncoders) {
 		leftEncoder.reset();
 		rightEncoder.reset();
 		double le, re, count;
 		count = 0;
 		//
-		if ((distance > 0 && speed < 0) || (distance < 0 && speed > 0)) speed = speed * -1;
+		if ((distance > 0 && speed < 0) || (distance < 0 && speed > 0))
+			speed = speed * -1;
 		if (distance > 0) {
 			while (limitswitch.get() && isEnabled() && count < distance) {
 				le = leftEncoder.getDistance();
