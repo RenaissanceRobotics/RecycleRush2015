@@ -90,6 +90,14 @@ public class Robot extends SampleRobot {
 	/*
 	 * ROBOT CODE:
 	 */
+	
+	public void robotInit () {
+		Victor one, two, three, four;
+		one = new Victor(0);
+		two = new Victor(1);
+		three = new Victor(2);
+		four = new Victor(3);
+	}
 
 	// Initiation
 	public Robot() {
@@ -104,12 +112,6 @@ public class Robot extends SampleRobot {
 		/*driveSys.setTurnSensitivity(0.75);
 		driveSys.speedSensitivity(1.0);*/
 		// = 'Mechanismsyui
-		
-		Victor one, two, three, four;
-		one = new Victor(0);
-		two = new Victor(1);
-		three = new Victor(2);
-		four = new Victor(3);
 		
 		winch = new Talon(4);
 		boom = new Talon(5);
@@ -159,7 +161,6 @@ public class Robot extends SampleRobot {
 		driveSys.setSkimReverse(false);*/
 
 		//
-		
 		//
 		autoMode mode = (autoMode) autoModeChooser.getSelected();
 		if (mode == autoMode.INIT_ERROR_FIX) {
