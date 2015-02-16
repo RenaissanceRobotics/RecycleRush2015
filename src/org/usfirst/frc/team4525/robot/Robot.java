@@ -104,13 +104,13 @@ public class Robot extends SampleRobot {
 		// Control Systems
 		xboxDrive = new XboxController(0);
 		xboxMech = new XboxController(1);
-		/*one = new Victor(0);
+		one = new Victor(0);
 		two = new Victor(1);
 		three = new Victor(2);
 		four = new Victor(3);
-		driveSys = new DriveTrain(one, two, three, four);*/
-		/*driveSys.setTurnSensitivity(0.75);
-		driveSys.speedSensitivity(1.0);*/
+		driveSys = new DriveTrain(one, two, three, four);
+		driveSys.setTurnSensitivity(0.75);
+		driveSys.speedSensitivity(1.0);
 		// = 'Mechanismsyui
 		
 		winch = new Talon(4);
@@ -156,9 +156,9 @@ public class Robot extends SampleRobot {
 
 	public void autonomous() {
 		compressor.start();
-		/*driveSys.setControlSensitivity(1);
+		driveSys.setControlSensitivity(1);
 		driveSys.speedSensitivity(1);
-		driveSys.setSkimReverse(false);*/
+		driveSys.setSkimReverse(false);
 
 		//
 		//
