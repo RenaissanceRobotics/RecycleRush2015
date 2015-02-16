@@ -95,7 +95,12 @@ public class Robot extends SampleRobot {
 		// Control Systems
 		xboxDrive = new XboxController(0);
 		xboxMech = new XboxController(1);
-		driveSys = new DriveTrain(new Victor(0), new Victor(1), new Victor(2), new Victor(3));
+		Victor one, two, three, four;
+		one = new Victor(0);
+		two = new Victor(1);
+		three = new Victor(2);
+		four = new Victor(3);
+		driveSys = new DriveTrain(one, two, three, four);
 		driveSys.setTurnSensitivity(0.75);
 		driveSys.speedSensitivity(1.0);
 		// = 'Mechanismsyui
@@ -131,6 +136,7 @@ public class Robot extends SampleRobot {
 
 		autoModeChooser = new SendableChooser();
 		autoModeChooser.addDefault("Bin Grab - Far Bump", autoMode.FULL_OUT_FAR);
+		autoModeChooser.addDefault("Bin Grab - Close Bump", autoMode.FULL_OUT_CLOSE);
 		autoModeChooser.addDefault("Tote Grabber", autoMode.GET_TOTE);
 		autoModeChooser.addObject("Do Nothing", autoMode.NOTHING);
 		autoModeChooser.addObject("Kick The Robot Game", autoMode.KICK_THE_ROBOT);
@@ -138,15 +144,15 @@ public class Robot extends SampleRobot {
 
 	}
 
-	public void autonomous() {
+	public void autonomous() {		
 		compressor.start();
 		driveSys.setControlSensitivity(1);
 		driveSys.speedSensitivity(1);
 		driveSys.setSkimReverse(false);
+		
+		
 		//
-		claw.retract();
-		tilt.extend();
-		gyro.reset();
+		
 		//
 		autoMode mode = (autoMode) autoModeChooser.getSelected();
 		if (mode == autoMode.GET_TOTE) {
@@ -163,6 +169,10 @@ public class Robot extends SampleRobot {
 				driveDistance(-75, -0.3, false);
 			}
 		} else if(mode == autoMode.FULL_OUT_CLOSE) { // Close Bump
+			claw.retract();
+			tilt.extend();
+			gyro.reset();
+			
 			driveDistance(22, 0.35, true);
 			// Boom Forward
 			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch, 0.5);
@@ -185,7 +195,11 @@ public class Robot extends SampleRobot {
 			winch.set(Winch.OFF.get());
 			
 			
-		} else {
+		} else { // Full out Far
+			claw.retract();
+			tilt.extend();
+			gyro.reset();
+			
 			// Move Arm Forwards
 			ArmMovements boomForward = new ArmMovements(boom, Boom.FORWARD.get(), boomBackSwitch, 0.5);
 			Thread boomForwardThread = new Thread(boomForward);
@@ -205,7 +219,7 @@ public class Robot extends SampleRobot {
 			Timer.delay(0.5);
 			// Raise Winch
 			winch.set(Winch.UP.get());
-			Timer.delay(3);;
+			Timer.delay(3);
 			// Back Arm off
 			winch.set(Winch.OFF.get());
 			// Back Arm off
@@ -308,6 +322,9 @@ public class Robot extends SampleRobot {
 					mechLR = 0;
 				if (!boomFrontSwitch.get() && mechLR > 0)
 					mechLR = 0;
+				// Set the mechanisms
+				winch.set(mechUD);
+				boom.set(mechLR);
 
 				// Pneumatics
 				// Gripper
@@ -325,10 +342,6 @@ public class Robot extends SampleRobot {
 				// Solenoid Use
 				tilt.countTime();
 				claw.countTime();
-
-				// Set the mechanisms
-				winch.set(mechUD);
-				boom.set(mechLR);
 
 				// Drive Controls
 				driveSys.setSprint(xboxDrive.getRawButton(9));
