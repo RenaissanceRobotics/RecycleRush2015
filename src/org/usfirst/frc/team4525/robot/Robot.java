@@ -131,6 +131,7 @@ public class Robot extends SampleRobot {
 
 		autoModeChooser = new SendableChooser();
 		autoModeChooser.addDefault("Bin Grab - Far Bump", autoMode.FULL_OUT_FAR);
+		autoModeChooser.addObject("Close ramp", autoMode.FULL_OUT_CLOSE);
 		autoModeChooser.addDefault("Tote Grabber", autoMode.GET_TOTE);
 		autoModeChooser.addObject("Do Nothing", autoMode.NOTHING);
 		autoModeChooser.addObject("Kick The Robot Game", autoMode.KICK_THE_ROBOT);
@@ -292,7 +293,7 @@ public class Robot extends SampleRobot {
 				// Up/Down Movement
 				mechUD = -xboxMech.getAxis(XboxController.AxisType.kLeftY);
 				// Left/Right Movement
-				mechLR = -xboxMech.getAxis(XboxController.AxisType.kRightX);
+				mechLR = xboxMech.getAxis(XboxController.AxisType.kRightY);
 				// Modify Values
 
 				if (mechUD > 0.6 && mechUD > 0) {
